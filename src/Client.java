@@ -1,18 +1,22 @@
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class Client implements Runnable{
     private DataOutputStream dos;
     private DataInputStream dis;
-
+    
+    @Override  
     public void run() {
-        try (Socket client = new Socket("localhost", 666)){
+        try (Socket client = new Socket("localhost", 6060)){
+            //Aqui criamos um socket para o cliente conectar ao servidor
             dos = new DataOutputStream(client.getOutputStream());
             dis = new DataInputStream(client.getInputStream());
 
+            //Thread para o client escutar oservidor
             Thread t = new Thread(this::listen);
             t.start();
 
+            //BufferedReader para os comandos e mensagens
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
             String msg;
             while ((msg = console.readLine()) != null) {
@@ -44,19 +48,22 @@ public class Client {
         }
     }
 
+    //Mensagens de texto
     private void sendText(String message) throws IOException {
         dos.writeUTF("TEXT");
         dos.writeUTF(message);
         dos.flush();
     }
 
+    //Envio de arquivos
     private void sendFile(String destino, boolean isGroup, String filePath) throws IOException {
-        File file = new File(filePath);
+        File file = new File(filePath);//Novo arquivo a partir do caminho informado
         if (!file.exists()) {
             System.out.println("Arquivo não encontrado!");
             return;
         }
 
+        //Leitura dos bytes do arquivo
         FileInputStream fis = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         fis.read(buffer);
@@ -73,6 +80,7 @@ public class Client {
         System.out.println("Arquivo enviado: " + file.getName());
     }
 
+    //Escuta mensagens e recebe os arquivos
     private void listen() {
         try {
             while (true) {
