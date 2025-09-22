@@ -21,14 +21,14 @@ public class Client {
                     break;
                 }
 
-                if (msg.startsWith("/sendfile ")) {
+                if (msg.startsWith("/send_file ")) {
                     String[] parts = msg.split(" ", 3);
                     if (parts.length < 3) {
                         System.out.println("Comando inválido! Tente novamente.");
                         continue;
                     }
                     sendFile(parts[1], false, parts[2]);
-                } else if (msg.startsWith("/gfile ")) {
+                } else if (msg.startsWith("/send_gfile ")) {
                     String[] parts = msg.split(" ", 3);
                     if (parts.length < 3) {
                         System.out.println("Comando inválido! Tente novamente.");

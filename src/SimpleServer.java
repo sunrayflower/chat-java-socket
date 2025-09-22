@@ -174,6 +174,7 @@ public class SimpleServer implements Runnable {
             try {
                 sendText("Digite seu nome de usuário:");
                 while (true) {
+                    String type = in.readUTF();
                     String name = in.readUTF();
 
                     if (name.trim().isEmpty()) {
