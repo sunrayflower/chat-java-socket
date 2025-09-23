@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.*;
 
 public class SimpleServer implements Runnable {
-    private static final int porta = 666;
+    private static final int porta = 6060;
     private static final List<ClientHandler> clients = new ArrayList<>();
     private static final List<Group> groups = new ArrayList<>();
     private ServerSocket serverSocket;
@@ -12,12 +12,14 @@ public class SimpleServer implements Runnable {
     @Override
     public void run() {
         try {
+            //Inicia o server e aguarda conexões 
             serverSocket = new ServerSocket(porta);
             System.out.println("Servidor aberto na porta " + porta);
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Novo cliente conectado: " + socket);
 
+                //Cria um clienthandler para cada novo cliente
                 ClientHandler client = new ClientHandler(socket);
                 new Thread(client).start();
             }
@@ -43,6 +45,7 @@ public class SimpleServer implements Runnable {
         }
     }
 
+    //Tratativa para mensagens privadas
     public static void privateMessage(String remetente, String destinatario, String message) {
         boolean found = false;
         for (ClientHandler c : clients) {
@@ -62,6 +65,7 @@ public class SimpleServer implements Runnable {
         }
     }
 
+    //Parte relacionada a manipulação de grupos
     private static class Group {
         String name;
         List<ClientHandler> members = new ArrayList<>();
@@ -166,6 +170,7 @@ public class SimpleServer implements Runnable {
             }
         }
 
+        //Getter para manter a integridade da variável
         public String getUsername() {
             return username;
         }
@@ -182,6 +187,7 @@ public class SimpleServer implements Runnable {
                         continue;
                     }
 
+                    //Tratativa para usuarios
                     boolean inUse = false;
                     for (ClientHandler c : clients) {
                         if (name.equalsIgnoreCase(c.username)) {
@@ -200,6 +206,7 @@ public class SimpleServer implements Runnable {
                     }
                 }
 
+                //Tratativa para os comandos
                 while (true) {
                     String type = in.readUTF();
 
@@ -263,6 +270,7 @@ public class SimpleServer implements Runnable {
                             broadcast("[" + username + "]: " + msg);
                         }
                     } else if (type.equals("FILE")) {
+                        //Leitura dos arquivos do client
                         String destino = in.readUTF();
                         boolean isGroup = in.readBoolean();
                         String fileName = in.readUTF();
@@ -302,6 +310,7 @@ public class SimpleServer implements Runnable {
             }
         }
 
+        //Mensagens de texto
         public void sendText(String msg) {
             try {
                 out.writeUTF("TEXT");
@@ -312,6 +321,7 @@ public class SimpleServer implements Runnable {
             }
         }
 
+        //Envio de arquivos
         public void sendFile(String fileName, byte[] data) {
             try {
                 out.writeUTF("FILE");
